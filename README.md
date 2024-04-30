@@ -21,6 +21,10 @@
 
 8. Profile Page
     ![Profile](https://github.com/gokulakrishnan001/FoodApp/assets/99865855/5e3136ab-9e13-46f8-a858-6188a5bd6445)
+
+9. Logout
+        ![Logout](https://github.com/gokulakrishnan001/FoodApp/assets/99865855/d51e246f-3537-4a95-be4e-0f4f7948b7ef)
+   
    
 
    
