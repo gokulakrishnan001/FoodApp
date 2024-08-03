@@ -133,8 +133,10 @@ fun OnBoardScreen(navController: NavHostController) {
             colors = TextFieldDefaults.colors(
               focusedTextColor = Color.Black,
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+
             ),
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),

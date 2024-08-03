@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             FoodAppTheme {
-                // A surface container using the 'background' color from the theme
+
                 val databaseMenuItem=database.menuItemDao().getAll().observeAsState(initial = emptyList())
                 AppNavigation(databaseMenuItem.value)
 

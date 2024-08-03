@@ -14,3 +14,7 @@ object Home : Destinations {
 object  Profile: Destinations {
     override val route = "Profile"
 }
+
+object  ExpandFood:Destinations{
+    override val route="Expand_food/{image}/{title}/{description}/{price}/{category}"
+}

@@ -1,7 +1,12 @@
 package com.example.foodapp.screens
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +23,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,23 +48,27 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.foodapp.R
 import com.example.foodapp.database.MenuItemRoom
 import com.example.foodapp.ui.theme.LittleLemonColor
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Home(navController: NavHostController, databaseMenuItem: List<MenuItemRoom>) {
+fun SharedTransitionScope.Home(animatedVisibilityScope: AnimatedVisibilityScope,navController: NavHostController, databaseMenuItem: List<MenuItemRoom>) {
 
     Column (
         modifier = Modifier.fillMaxSize()
     ){
         TopAppBar(navController)
         UpperPanel()
-        OrderView(databaseMenuItem)
+        OrderView(animatedVisibilityScope,databaseMenuItem,navController)
 
     }
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun TopAppBar(navController: NavHostController) {
+fun SharedTransitionScope.TopAppBar(navController: NavHostController) {
     Row(horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
@@ -146,8 +154,9 @@ fun UpperPanel() {
 
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun OrderView(databaseMenuItem: List<MenuItemRoom>) {
+fun SharedTransitionScope.OrderView(animatedVisibilityScope: AnimatedVisibilityScope,databaseMenuItem: List<MenuItemRoom>,navController: NavHostController) {
     var buttonState1 by remember {
         mutableStateOf(false)
     }
@@ -157,16 +166,10 @@ fun OrderView(databaseMenuItem: List<MenuItemRoom>) {
     var buttonState3 by remember {
         mutableStateOf(false)
     }
-    var buttonState4 by remember {
-        mutableStateOf(false)
-    }
-
-
-
 
 
     var menuItems by remember {
-        mutableStateOf(databaseMenuItem);
+        mutableStateOf(databaseMenuItem)
     }
 
     Column {
@@ -239,25 +242,42 @@ fun OrderView(databaseMenuItem: List<MenuItemRoom>) {
             }
 
         }
-        LowerPanel(dish =menuItems)
+        LowerPanel( dish =menuItems,navController, animatedVisibilityScope = animatedVisibilityScope)
     }
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun LowerPanel(dish:List<MenuItemRoom>) {
+fun SharedTransitionScope.LowerPanel(dish:List<MenuItemRoom>,
+               navController: NavHostController,
+               animatedVisibilityScope: AnimatedVisibilityScope
+               ) {
     Column {
         LazyColumn {
             itemsIndexed(dish) { _, dishes ->
-               MenuDish(menuItemNetwork = dishes)
+               MenuDish(menuItemNetwork = dishes,
+                   navController=navController,
+                   animatedVisibilityScope=animatedVisibilityScope
+                   )
             }
             }
         }
     }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun MenuDish(menuItemNetwork: MenuItemRoom) {
+fun SharedTransitionScope.MenuDish(menuItemNetwork: MenuItemRoom,
+             navController: NavHostController, animatedVisibilityScope: AnimatedVisibilityScope
+             ) {
+    val image=menuItemNetwork.image
+    val title=menuItemNetwork.title
+    val price=menuItemNetwork.price
+    val description=menuItemNetwork.description
+    val category=menuItemNetwork.category
+
+    val encodedImage = URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
+
         Row(
             modifier= Modifier
                 .fillMaxWidth()
@@ -268,19 +288,58 @@ fun MenuDish(menuItemNetwork: MenuItemRoom) {
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
                     .padding(top = 5.dp, bottom = 5.dp)
+                    .clickable {
+                        navController.navigate("Expand_food/$encodedImage/$title/$description/$price/$category")
+                    }
+
             ){
-                Text(text = menuItemNetwork.title,
-                    style =MaterialTheme.typography.bodyLarge
+                Text(text = title,
+                    style =MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.sharedElement(
+                        state = rememberSharedContentState(key = "image/$title"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = {_,_ ->
+                            tween(durationMillis = 1500)
+
+                        }
+                    )
 
                 )
-                Text(text = menuItemNetwork.description, style = MaterialTheme.typography.bodyMedium)
-                Text(text = "$${menuItemNetwork.price}",style = MaterialTheme.typography.bodySmall)
+                Text(text = description, style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.sharedElement(
+                        state = rememberSharedContentState(key = "image/$description"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = {_,_ ->
+                            tween(durationMillis = 1500)
+
+                        }
+                    )
+                    )
+                Text(text = "$${price}",style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.sharedElement(
+                        state = rememberSharedContentState(key = "image/$price"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = {_,_ ->
+                            tween(durationMillis = 1500)
+
+                        }
+                    )
+                    )
 
             }
-            GlideImage(model = menuItemNetwork.image, contentDescription = "",
-                modifier = Modifier.clip(RoundedCornerShape(10.dp)
+            GlideImage(model = image, contentDescription = "",
+                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                    .sharedElement(
+                        state = rememberSharedContentState(key = "image/$image"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = {_,_ ->
+                            tween(durationMillis = 1500)
+
+                        }
+                    )
+
                 )
-            )
+
         }
 
     Divider(
