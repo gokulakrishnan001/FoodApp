@@ -10,10 +10,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.foodapp.database.MenuItemRoom
+import com.example.foodapp.screens.CartScreen
 import com.example.foodapp.screens.ExpandFoodScreen
 import com.example.foodapp.screens.Home
 import com.example.foodapp.screens.OnBoard
 import com.example.foodapp.screens.OnBoardScreen
+import com.example.foodapp.screens.Payment
+import com.example.foodapp.screens.PaymentScreen
+import com.example.foodapp.screens.PaymentSucessful
 import com.example.foodapp.screens.Profile
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -66,6 +70,50 @@ fun AppNavigation(databaseMenuItem: List<MenuItemRoom>) {
                     this,
                     navController
                 )
+            }
+            composable(
+                "cart_screen/{image}/{title}/{quantity}/{amount}",
+                arguments = listOf(
+                    navArgument("image") {
+                        type = NavType.StringType
+                    },
+                    navArgument("title") {
+                        type = NavType.StringType
+                    },
+                    navArgument("quantity") {
+                        type = NavType.StringType
+                    },
+                    navArgument("amount") {
+                        type = NavType.StringType
+                    },
+                )
+            ) {
+                val image = it.arguments?.getString("image") ?: ""
+                val title = it.arguments?.getString("title") ?: ""
+                val price = it.arguments?.getString("amount") ?: ""
+                val quantity = it.arguments?.getString("quantity") ?: ""
+
+                CartScreen(
+                    amount = price,
+                    image = image,
+                    title = title,
+                    quantity = quantity,
+                    animatedVisibilityScope = this,
+                    navController
+                )
+            }
+            composable("payment_screen/{amount}",
+                arguments = listOf(
+                    navArgument("amount") {
+                        type = NavType.StringType
+                    }
+                )
+                ) {
+                val amount=it.arguments?.getString("amount")?:""
+               PaymentScreen(amount = amount,navController)
+            }
+            composable(Payment.route) {
+                PaymentSucessful(navController = navController)
             }
         }
     }

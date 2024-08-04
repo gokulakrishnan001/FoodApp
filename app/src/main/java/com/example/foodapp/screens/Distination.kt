@@ -18,3 +18,8 @@ object  Profile: Destinations {
 object  ExpandFood:Destinations{
     override val route="Expand_food/{image}/{title}/{description}/{price}/{category}"
 }
+
+object Payment:Destinations{
+    override val route="Payment"
+
+}

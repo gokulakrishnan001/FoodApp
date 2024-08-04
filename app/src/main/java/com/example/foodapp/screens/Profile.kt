@@ -2,10 +2,16 @@ package com.example.foodapp.screens
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,9 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -28,15 +39,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.foodapp.R
 import com.example.foodapp.ui.theme.LittleLemonColor
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Profile(navController: NavHostController) {
 
@@ -85,8 +101,47 @@ fun Profile(navController: NavHostController) {
 
             )
         }
+        var selectedItemUri by remember {
+            mutableStateOf<Uri?>(null)
+        }
 
-        Spacer(modifier = Modifier.height(50.dp))
+        val photoPicker= rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia()
+        ){
+            selectedItemUri=it
+        }
+        Box(modifier = Modifier.padding(start =110.dp)) {
+            GlideImage(
+                model= selectedItemUri ?:R.drawable.profile,
+                contentDescription = "Contact profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    // Set image size to 40 dp
+                    .size(130.dp)
+                    // Clip image to be shaped as a circle
+                    .clip(CircleShape)
+            )
+            Row(modifier = Modifier.padding(2.dp)){
+                Text(text = "", modifier = Modifier.width(28.dp))
+                IconButton(
+                    onClick = {
+                        photoPicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    modifier = Modifier
+                        // Set image size to 4 dp
+                        .size(25.dp)
+                        // Clip image to be shaped as a circle
+                        .clip(CircleShape)
+                        .background(LittleLemonColor.cloud)
+
+                ){
+                    Icon(Icons.Filled.Edit, contentDescription = "")
+                }
+            }
+        }
+
         Text(
             text = "Personal Information",
             modifier = Modifier.padding(20.dp),
@@ -150,7 +205,7 @@ fun Profile(navController: NavHostController) {
                     )
             }
         )
-        Spacer(modifier = Modifier.height(70.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(onClick = {
             val sharedPreferencesRemove: SharedPreferences =

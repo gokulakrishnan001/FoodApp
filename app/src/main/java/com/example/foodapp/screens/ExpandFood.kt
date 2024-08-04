@@ -59,6 +59,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.foodapp.R
 import com.example.foodapp.ui.theme.LittleLemonColor
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalSharedTransitionApi::class,
     ExperimentalMaterial3Api::class
@@ -260,6 +262,9 @@ fun SharedTransitionScope.ExpandFoodScreen(
 
 
             if (openDialog) {
+                val total = price.toInt() * quantity
+                val discount=quantity*0.5
+                val pay=total - discount
 
                 AlertDialog(
                     onDismissRequest = {
@@ -274,9 +279,7 @@ fun SharedTransitionScope.ExpandFoodScreen(
                     },
                     text = {
                         Column {
-                            val total = price.toInt() * quantity
-                            val discount=quantity*0.5
-                            val pay=total - discount
+                            
                             Text("Food Price: $$price")
                             Text("Quantity: $quantity")
 
@@ -290,6 +293,7 @@ fun SharedTransitionScope.ExpandFoodScreen(
 
                             onClick = {
                                 openDialog = false
+                                val encodedImage = URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
                                 scope.launch {
                                   val snackbar=  snackbarHostState.showSnackbar(
                                         "Food is Added into Cart ",
@@ -300,12 +304,11 @@ fun SharedTransitionScope.ExpandFoodScreen(
                                         SnackbarResult.Dismissed -> {}
 
                                         SnackbarResult.ActionPerformed ->{
-                                            navController.navigate(Home.route)
+                                            navController.navigate("cart_screen/$encodedImage/$title/$quantity/$pay")
                                         }
                                     }
                                 }
-
-
+                                
                             }) {
                             Text("Confirm Order",
                                 color = LittleLemonColor.charcoal

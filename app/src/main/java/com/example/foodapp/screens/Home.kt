@@ -1,5 +1,6 @@
 package com.example.foodapp.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -20,6 +21,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -88,6 +92,17 @@ fun SharedTransitionScope.TopAppBar(navController: NavHostController) {
                 contentDescription = "Cart",
                 modifier = Modifier.size(24.dp)
             )
+
+
+        }
+        BadgedBox(
+            badge = {
+                Badge(containerColor =LittleLemonColor.green) { Text("1") }
+            }
+        ){
+            Icon(Icons.Filled.ShoppingCart, contentDescription ="" ,
+                modifier = Modifier.size(24.dp)
+                )
         }
     }
 }
@@ -265,18 +280,20 @@ fun SharedTransitionScope.LowerPanel(dish:List<MenuItemRoom>,
         }
     }
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.MenuDish(menuItemNetwork: MenuItemRoom,
              navController: NavHostController, animatedVisibilityScope: AnimatedVisibilityScope
              ) {
+
     val image=menuItemNetwork.image
+    val encodedImage = URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
     val title=menuItemNetwork.title
     val price=menuItemNetwork.price
     val description=menuItemNetwork.description
     val category=menuItemNetwork.category
 
-    val encodedImage = URLEncoder.encode(image, StandardCharsets.UTF_8.toString())
 
         Row(
             modifier= Modifier
@@ -328,11 +345,12 @@ fun SharedTransitionScope.MenuDish(menuItemNetwork: MenuItemRoom,
 
             }
             GlideImage(model = image, contentDescription = "",
-                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
                     .sharedElement(
                         state = rememberSharedContentState(key = "image/$image"),
                         animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = {_,_ ->
+                        boundsTransform = { _, _ ->
                             tween(durationMillis = 1500)
 
                         }
